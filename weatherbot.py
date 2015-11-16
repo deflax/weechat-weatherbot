@@ -41,7 +41,7 @@ def weebuffer(reaction_buf):
     buffer = weechat.info_get("irc_buffer", rtnbuf)
     weechat.command(buffer, "/msg " + kchannel + " " + reaction_buf)
 
-def wu_autoc(i, command, return_code, out, err):
+def wu_autoc(data, command, return_code, out, err):
     global jname
     if return_code == weechat.WEECHAT_HOOK_PROCESS_ERROR:
         weechat.prnt("", "Error with command '%s'" % command)
