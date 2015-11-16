@@ -52,21 +52,25 @@ def wu_autoc(data, command, return_code, out, err):
         weechat.prnt("", "stderr: %s" % err)
     if out != "":
         i = ast.literal_eval(out)
-        loc_id = ""
         try:
-            loc_id = i['RESULTS'][0]['l']
+            for result in i['RESULTS']:
+                if result['type'] == 'city':
+                    loc = result
+                    break
+            else:
+                loc = {'name': ''}
         except:
             reaction = 'Invalid query. Try again.'
             weebuffer(reaction)
             return weechat.WEECHAT_RC_OK
-        jname = i['RESULTS'][0]['name']
+        jname = loc['name']
         if jname == "":
             reaction = 'Unable to locate query.'
             weebuffer(reaction)
             return weechat.WEECHAT_RC_OK 
         else:
             pass
-        cond_url = 'url:http://api.wunderground.com/api/' + apikey + '/conditions' + loc_id + '.json'
+        cond_url = 'url:http://api.wunderground.com/api/' + apikey + '/conditions' + loc['l'] + '.json'
         cond_hook = weechat.hook_process(cond_url, 30 * 1000, "wu_cond", "")
     return weechat.WEECHAT_RC_OK
     
@@ -133,12 +137,12 @@ def triggerwatch(data, server, args):
             null, srvmsg = args.split(" PRIVMSG ", 1)#
             kchannel, query = srvmsg.split(" :" + trigger + " ", 1)
         except ValueError, e:
-            #weechat.prnt(e)
+            # weechat.prnt(e)
             return weechat.WEECHAT_RC_OK
         kserver = str(server.split(",",1)[0])
         query = query.replace(" ", "%20")
         autoc_url = 'url:http://autocomplete.wunderground.com/aq?query=' + query + '&format=JSON'
-        #print(autoc_url) #debug
+        # print(autoc_url) #debug
         autoc_hook = weechat.hook_process(autoc_url, 30 * 1000, "wu_autoc", "")
     else:
         pass
