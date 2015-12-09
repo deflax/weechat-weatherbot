@@ -103,7 +103,7 @@ def wu_cond(data, command, return_code, out, err):
             windspeed = j[co]['wind_kph']
             temp = j[co]['temp_c']
             like = j[co]['feelslike_c']
-            if abs(int(temp)-int(like)) > 2:
+            if abs(int(float(temp))-int(float(like))) > 2
                 reaction += str(temp) + "°C but feels like " + str(like) + "°C"
             else:
                 reaction += str(temp) + "°C"
