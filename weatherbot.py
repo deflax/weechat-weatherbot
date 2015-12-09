@@ -19,7 +19,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SCRIPT_NAME = "weatherbot"
-VERSION = "0.4"
+VERSION = "0.5"
 
 helptext = """
 Get your own API key from http://www.wunderground.com/weather/api/
@@ -103,10 +103,10 @@ def wu_cond(data, command, return_code, out, err):
             windspeed = j[co]['wind_kph']
             temp = j[co]['temp_c']
             like = j[co]['feelslike_c']
-            if str(temp) == str(like):
-                reaction += str(temp) + "°C"
-            else:
+            if abs(int(temp)-int(like)) > 2:
                 reaction += str(temp) + "°C but feels like " + str(like) + "°C"
+            else:
+                reaction += str(temp) + "°C"
             if windspeed > 0:
                 reaction += '. ' 
                 reaction += str(j[co]['wind_dir']) + ' wind: ' + str(windspeed) + ' kph'
