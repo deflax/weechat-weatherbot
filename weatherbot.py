@@ -21,7 +21,6 @@
 import weechat
 import ast
 
-
 SCRIPT_NAME = "weatherbot"
 VERSION = "0.6"
 
@@ -32,8 +31,8 @@ and act as a weatherbot :)
 Hugs to all friends from #clanchill @ quakenet \o/
 """
 
-options = {"enabled": "off", "units": "metric", "trigger": "!weather",
-           "apikey": "0000000000000"}
+default_options = {"enabled": "off", "units": "metric", "trigger": "!weather",
+                   "apikey": "0000000000000"}
 
 
 def weebuffer(reaction_buf):
@@ -64,7 +63,7 @@ def wu_autoc(data, command, return_code, out, err):
 
         jname = loc["name"]
         cond_url = "url:http://api.wunderground.com/api/{}/conditions{}.json".format(options["apikey"], loc["l"])
-        cond_hook = weechat.hook_process(cond_url, 30 * 1000, "wu_cond", "")
+        weechat.hook_process(cond_url, 30 * 1000, "wu_cond", "")
     return weechat.WEECHAT_RC_OK
 
 
@@ -129,7 +128,7 @@ def triggerwatch(data, server, args):
         kserver = str(server.split(",", 1)[0])
         query = query.replace(" ", "%20")
         autoc_url = "url:http://autocomplete.wunderground.com/aq?query={}&format=JSON".format(query)
-        autoc_hook = weechat.hook_process(autoc_url, 30 * 1000, "wu_autoc", "")
+        weechat.hook_process(autoc_url, 30 * 1000, "wu_autoc", "")
 
     return weechat.WEECHAT_RC_OK
 
@@ -148,11 +147,12 @@ def config_cb(data, option, value):
 def get_option(option):
     return weechat.config_string(weechat.config_get("{}.{}".format(plugin_config, option)))
 
+
 plugin_config = "plugins.var.python.{}".format(SCRIPT_NAME)
 weechat.hook_config("{}.*".format(plugin_config), "config_cb", "")
-for opt, default_value in options.items():
-    if not weechat.config_is_set_plugin(opt):
-        weechat.config_set_plugin(opt, default_value)
+for option, default_value in default_options.items():
+    if not weechat.config_is_set_plugin(option):
+        weechat.config_set_plugin(option, default_value)
 
 options = {"enabled": get_option("enabled"), "units": get_option("units"), "trigger": get_option("trigger"),
            "apikey": get_option("apikey")}
