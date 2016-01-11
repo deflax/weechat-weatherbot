@@ -31,15 +31,15 @@ and act as a weatherbot :)
 Hugs to all friends from #clanchill @ quakenet \o/
 """
 
-default_options = {"enabled": "off", "units": "metric", "trigger": "!weather",
+default_options = {"enabled": "off",
+                   "units": "metric",
+                   "trigger": "!weather",
                    "apikey": "0000000000000"}
-
 
 def weebuffer(reaction_buf):
     rtnbuf = "{},{}".format(kserver, kchannel)
     buffer = weechat.info_get("irc_buffer", rtnbuf)
     weechat.command(buffer, "/msg {} {}".format(kchannel, reaction_buf))
-
 
 def wu_autoc(data, command, return_code, out, err):
     global jname
@@ -65,7 +65,6 @@ def wu_autoc(data, command, return_code, out, err):
         cond_url = "url:http://api.wunderground.com/api/{}/conditions{}.json".format(options["apikey"], loc["l"])
         weechat.hook_process(cond_url, 30 * 1000, "wu_cond", "")
     return weechat.WEECHAT_RC_OK
-
 
 def wu_cond(data, command, return_code, out, err):
     if return_code == weechat.WEECHAT_HOOK_PROCESS_ERROR:
@@ -116,7 +115,6 @@ def wu_cond(data, command, return_code, out, err):
         weebuffer(reaction)
     return weechat.WEECHAT_RC_OK
 
-
 def triggerwatch(data, server, args):
     global kserver, kchannel
     if options["enabled"] == "on":
@@ -132,10 +130,8 @@ def triggerwatch(data, server, args):
 
     return weechat.WEECHAT_RC_OK
 
-
 weechat.register("weatherbot", "deflax", VERSION, "GPL3", "WeatherBot using the WeatherUnderground API", "", "")
 weechat.hook_signal("*,irc_in_privmsg", "triggerwatch", "data")
-
 
 def config_cb(data, option, value):
     """Callback called when a script option is changed."""
@@ -143,10 +139,9 @@ def config_cb(data, option, value):
     options[opt] = value
     return weechat.WEECHAT_RC_OK
 
-
 def get_option(option):
+    """Returns value of weechat option."""
     return weechat.config_string(weechat.config_get("{}.{}".format(plugin_config, option)))
-
 
 plugin_config = "plugins.var.python.{}".format(SCRIPT_NAME)
 weechat.hook_config("{}.*".format(plugin_config), "config_cb", "")
