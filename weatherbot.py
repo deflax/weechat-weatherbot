@@ -99,7 +99,7 @@ def wu_cond(data, command, return_code, out, err):
 
         temp = co["temp_{}".format(temp_unit.lower())]
         like = co["feelslike_{}".format(temp_unit.lower())]
-        if abs(int(temp) - int(like)) > 2:
+        if abs(int(float(temp)) - int(float(like))) > 2:
             reaction += "{0}°{1} but feels like {2}°{1}.".format(temp, temp_unit, like)
         else:
             reaction += "{}°{}.".format(temp, temp_unit)
