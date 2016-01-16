@@ -42,6 +42,7 @@ def weebuffer(reaction_buf):
     weechat.command(buffer, "/msg {} {}".format(kchannel, reaction_buf))
 
 def wu_autoc(data, command, return_code, out, err):
+    """ weather underground auto search """
     global jname
     if return_code == weechat.WEECHAT_HOOK_PROCESS_ERROR:
         weechat.prnt("", "Error with command `%s'" % command)
@@ -67,6 +68,7 @@ def wu_autoc(data, command, return_code, out, err):
     return weechat.WEECHAT_RC_OK
 
 def wu_cond(data, command, return_code, out, err):
+    """ weather underground condition """
     if return_code == weechat.WEECHAT_HOOK_PROCESS_ERROR:
         weechat.prnt("", "Error with command '%s'" % command)
         return weechat.WEECHAT_RC_OK
@@ -125,6 +127,7 @@ def triggerwatch(data, server, args):
             return weechat.WEECHAT_RC_OK
         kserver = str(server.split(",", 1)[0])
         query = query.replace(" ", "%20")
+        #TODO: InitLab  https://cassie.initlab.org/weather.txt
         autoc_url = "url:http://autocomplete.wunderground.com/aq?query={}&format=JSON".format(query)
         weechat.hook_process(autoc_url, 30 * 1000, "wu_autoc", "")
 
