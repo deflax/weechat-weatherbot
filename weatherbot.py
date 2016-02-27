@@ -113,9 +113,8 @@ def wu_fore(data, command, return_code, out, err):
             fc_name = fc_today["title"]
             fc_name = fc_name.lower()
             weechat.prnt("", "[weatherbot] req.: {}".format(fc_name))
-            reaction += "-{}- {} ".format(fc_name, fc_cond)
-
-        weebuffer(reaction)
+            reaction = "-{}- {} ".format(fc_name, fc_cond)
+            weebuffer(reaction)
 
     return weechat.WEECHAT_RC_OK
 
