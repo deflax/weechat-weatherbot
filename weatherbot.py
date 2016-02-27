@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- encoding: utf-8 -*-
 #
-# Copyright (c) 2014-2015 by deflax <daniel@deflax.net>
+# Copyright (c) 2014-2016 by deflax <daniel@deflax.net>
 #
 #       Weechat WeatherBot using WUnderground API
 #
