@@ -35,7 +35,6 @@ default_options = {"enabled": "on",
                    "units": "metric",
                    "weather_trigger": "!weather",
                    "forecast_trigger": "!forecast",
-                   "hacklab_trigger": "!initlab",
                    "apikey": "0000000000000"}
 
 def weebuffer(reaction_buf):
@@ -241,7 +240,6 @@ options = {"enabled": get_option("enabled"),
            "units": get_option("units"), 
            "weather_trigger": get_option("weather_trigger"),
            "forecast_trigger": get_option("forecast_trigger"),
-           "hacklab_trigger": get_option("hacklab_trigger"),
            "apikey": get_option("apikey")
           }
 
