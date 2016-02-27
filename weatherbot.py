@@ -65,15 +65,16 @@ def wu_autoc(data, command, return_code, out, err):
             return weechat.WEECHAT_RC_OK
 
         jname = loc["name"]
+        location = loc["l"]
         prefix = "[weatherbot] mode:"
         if mode == "conditions":
-            cond_url = "url:http://api.wunderground.com/api/{}/conditions{}.json".format(options["apikey"], loc["l"])
-            weechat.prnt("", '{} {}'.format(prefix, mode))
+            cond_url = "url:http://api.wunderground.com/api/{}/conditions{}.json".format(options["apikey"], location)
+            weechat.prnt("", '{} {} {}'.format(prefix, mode, location))
             weechat.hook_process(cond_url, 30 * 1000, "wu_cond", "")
 
         if mode == "forecast":
-            fore_url = "url:http://api.wunderground.com/api/{}/forecast{}.json".format(options["apikey"], loc["l"])
-            weechat.prnt("", '{} {}'.format(prefix, mode))
+            fore_url = "url:http://api.wunderground.com/api/{}/forecast{}.json".format(options["apikey"], location)
+            weechat.prnt("", '{} {} {}'.format(prefix, mode, location))
             weechat.hook_process(fore_url, 30 * 1000, "wu_fore", "")
 
     return weechat.WEECHAT_RC_OK
@@ -103,7 +104,6 @@ def wu_fore(data, command, return_code, out, err):
     
         fc = j["forecast"]
         txt_fc = fc["txt_forecast"]
-        reaction = "[{}] ".format(jname) 
         for day in range(0, 3):
             fc_today = txt_fc["forecastday"][int(day)]
             if options["units"] == "metric":
@@ -111,9 +111,9 @@ def wu_fore(data, command, return_code, out, err):
             else:
                 fc_cond = fc_today["fcttext"]
             fc_name = fc_today["title"]
-            fc_name = fc_name.lower()
-            weechat.prnt("", "[weatherbot] req.: {}".format(fc_name))
-            reaction = "-{}- {} ".format(fc_name, fc_cond)
+            #fc_name = fc_name.lower()
+            #weechat.prnt("", "[weatherbot] req.: {}".format(fc_name))
+            reaction = "[{}, {}] {}".format(jname, fc_name, fc_cond)
             weebuffer(reaction)
 
     return weechat.WEECHAT_RC_OK
