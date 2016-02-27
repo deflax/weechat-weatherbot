@@ -22,18 +22,20 @@ import weechat
 import ast
 
 SCRIPT_NAME = "weatherbot"
-VERSION = "0.6"
+VERSION = "0.7"
 
 helptext = """
 Get your own API key from http://www.wunderground.com/weather/api/
-and act as a weatherbot :)
+and act as weatherbot :)
 
-Hugs to all friends from #clanchill @ quakenet \o/
+\o/ hugs to all friends from #clanchill@quakenet and initlab.org \o/
 """
 
-default_options = {"enabled": "off",
+default_options = {"enabled": "on",
                    "units": "metric",
                    "weather_trigger": "!weather",
+                   "forecast_trigger": "!forecast",
+                   "hacklab_trigger": "!initlab",
                    "apikey": "0000000000000"}
 
 def weebuffer(reaction_buf):
@@ -63,12 +65,62 @@ def wu_autoc(data, command, return_code, out, err):
             return weechat.WEECHAT_RC_OK
 
         jname = loc["name"]
-        cond_url = "url:http://api.wunderground.com/api/{}/conditions{}.json".format(options["apikey"], loc["l"])
-        weechat.hook_process(cond_url, 30 * 1000, "wu_cond", "")
+        prefix = "[weatherbot] mode:"
+        if mode == "conditions":
+            cond_url = "url:http://api.wunderground.com/api/{}/conditions{}.json".format(options["apikey"], loc["l"])
+            weechat.prnt("", '{} {}'.format(prefix, mode))
+            weechat.hook_process(cond_url, 30 * 1000, "wu_cond", "")
+
+        if mode == "forecast":
+            fore_url = "url:http://api.wunderground.com/api/{}/forecast{}.json".format(options["apikey"], loc["l"])
+            weechat.prnt("", '{} {}'.format(prefix, mode))
+            weechat.hook_process(fore_url, 30 * 1000, "wu_fore", "")
+
+    return weechat.WEECHAT_RC_OK
+
+
+def wu_fore(data, command, return_code, out, err):
+    """ wu 5-day forecast """
+    if return_code == weechat.WEECHAT_HOOK_PROCESS_ERROR:
+        weechat.prnt("", "Error with command '%s'" % command)
+        return weechat.WEECHAT_RC_OK
+    if return_code > 0:
+        weechat.prnt("", "return_code = %d" % return_code)
+    if err != "":
+        weechat.prnt("", "stderr: %s" % err)
+    if out != "":
+        j = ast.literal_eval(out)
+        try:
+            error_type = j["response"]["error"]["type"]
+            if error_type == "invalidquery":
+                weebuffer("Error. Try again.")
+                return weechat.WEECHAT_RC_OK
+            elif error_type == "keynotfound":
+                weechat.prnt("", "Invalid API key.")
+                return weechat.WEECHAT_RC_OK
+        except KeyError:
+            pass
+    
+        fc = j["forecast"]
+        txt_fc = fc["txt_forecast"]
+        reaction = "[{}] ".format(jname) 
+        for day in range(0, 3):
+            fc_today = txt_fc["forecastday"][int(day)]
+            if options["units"] == "metric":
+                fc_cond = fc_today["fcttext_metric"]
+            else:
+                fc_cond = fc_today["fcttext"]
+            fc_name = fc_today["title"]
+            fc_name = fc_name.lower()
+            weechat.prnt("", "[weatherbot] req.: {}".format(fc_name))
+            reaction += "-{}- {} ".format(fc_name, fc_cond)
+
+        weebuffer(reaction)
+
     return weechat.WEECHAT_RC_OK
 
 def wu_cond(data, command, return_code, out, err):
-    """ weather underground condition """
+    """ wu condition """
     if return_code == weechat.WEECHAT_HOOK_PROCESS_ERROR:
         weechat.prnt("", "Error with command '%s'" % command)
         return weechat.WEECHAT_RC_OK
@@ -117,20 +169,51 @@ def wu_cond(data, command, return_code, out, err):
         weebuffer(reaction)
     return weechat.WEECHAT_RC_OK
 
+def hacklab(data, command, return_code, out, err):
+    """ sample AUX input """
+    if return_code == weechat.WEECHAT_HOOK_PROCESS_ERROR:
+        weechat.prnt("", "Error with command '%s'" % command)
+        return weechat.WEECHAT_RC_OK
+    if return_code > 0:
+        weechat.prnt("", "return_code = %d" % return_code)
+    if err != "":
+        weechat.prnt("", "stderr: %s" % err)
+    if out != "":
+        reaction = ''.join(out)
+        weebuffer(str(reaction))
+    return weechat.WEECHAT_RC_OK
+
+
 def triggerwatch(data, server, args):
-    global kserver, kchannel
+    global kserver, kchannel, mode
     if options["enabled"] == "on":
-        print('test')
         try:
             null, srvmsg = args.split(" PRIVMSG ", 1)
-            kchannel, query = srvmsg.split(" :{} ".format(options["weather_trigger"]), 1)
-        except ValueError:
+        except:
             return weechat.WEECHAT_RC_OK
+
+        try:
+            kchannel, query = srvmsg.split(" :{} ".format(options["weather_trigger"]), 1)
+            mode = "conditions"
+        except ValueError:
+            try:
+                kchannel, query = srvmsg.split(" :{} ".format(options["forecast_trigger"]), 1)
+                mode = "forecast"
+            except ValueError:
+                return weechat.WEECHAT_RC_OK
+
         kserver = str(server.split(",", 1)[0])
+
         query = query.replace(" ", "%20")
-        #TODO: InitLab  https://cassie.initlab.org/weather.txt
-        autoc_url = "url:http://autocomplete.wunderground.com/aq?query={}&format=JSON".format(query)
-        weechat.hook_process(autoc_url, 30 * 1000, "wu_autoc", "")
+        if query == "initlab":
+            if mode == "forecast":
+                weebuffer("Crocodile bite!")
+            else:
+                hack_url = "url:https://cassie.initlab.org/weather.txt"
+                weechat.hook_process(hack_url, 30 * 1000, "hacklab", "")
+        else:
+            autoc_url = "url:http://autocomplete.wunderground.com/aq?query={}&format=JSON".format(query)
+            weechat.hook_process(autoc_url, 30 * 1000, "wu_autoc", "")
 
     return weechat.WEECHAT_RC_OK
 
@@ -153,9 +236,15 @@ for option, default_value in default_options.items():
     if not weechat.config_is_set_plugin(option):
         weechat.config_set_plugin(option, default_value)
 
-options = {"enabled": get_option("enabled"), "units": get_option("units"), "weather_trigger": get_option("weather_trigger"),
-           "apikey": get_option("apikey")}
+options = {"enabled": get_option("enabled"),
+           "units": get_option("units"), 
+           "weather_trigger": get_option("weather_trigger"),
+           "forecast_trigger": get_option("forecast_trigger"),
+           "hacklab_trigger": get_option("hacklab_trigger"),
+           "apikey": get_option("apikey")
+          }
 
 if options["apikey"] == "0000000000000":
     weechat.prnt("", "Your API key is not set. Please sign up at www.wunderground.com/weather/api "
                      "and set plugins.var.python.weatherbot.* options. Thanks.")
+
