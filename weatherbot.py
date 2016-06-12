@@ -109,16 +109,11 @@ def wu_fore(data, command, return_code, out, err):
 
 	#hour_string = j['forecast']['txt_forecast']['date']
 	#hour_stripped = hour_string.rpartition(" ")[0]
-	#stripped = time.strptime(hour_stripped,"%I:%M %p")
-	#hour = stripped.tm_hour
-
         now = datetime.datetime.now()
         strhour = now.strftime('%H')
         hour = int(strhour)
 
-        reaction = '[' + jname + '] Forecast as of '
-        reaction += j['forecast']['txt_forecast']['date']
-        reaction += ' - [*'
+        reaction += ' [*'
 
         #if earlier than 1600 show forecast for today and tonight
         if hour < 16: 
