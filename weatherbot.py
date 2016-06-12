@@ -20,7 +20,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import weechat, json, time
+import weechat, json, datetime
 
 SCRIPT_NAME = "weatherbot"
 VERSION = "0.8"
@@ -102,16 +102,18 @@ def wu_fore(data, command, return_code, out, err):
         except KeyError:
             pass
 
-	hour_string = j['forecast']['txt_forecast']['date']
-	hour_stripped = hour_string.rpartition(" ")[0]
-        print(hour_stripped)
-	stripped = time.strptime(hour_stripped,"%I:%M %p")
-        print(stripped)
-	hour = stripped.tm_hour
 	if units == "metric":
             fcttext = 'fcttext_metric'
         else:
             fcttext = 'fcttext'
+
+	#hour_string = j['forecast']['txt_forecast']['date']
+	#hour_stripped = hour_string.rpartition(" ")[0]
+	#stripped = time.strptime(hour_stripped,"%I:%M %p")
+	#hour = stripped.tm_hour
+
+        now = datetime.datetime.now()
+        hour = now.strftime('%H')
 
         #if earlier than 1600 show forecast for today and tonight
         if hour < 16: 
