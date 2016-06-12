@@ -115,32 +115,27 @@ def wu_fore(data, command, return_code, out, err):
         now = datetime.datetime.now()
         hour = now.strftime('%H')
 
+        reaction = '[' + jname + '] Forecast as of '
+        reaction += j['forecast']['txt_forecast']['date']
+        reaction += ' - [*'
+
         #if earlier than 1600 show forecast for today and tonight
         if hour < 16: 
-            reaction = 'Forecast for *' + jname + '* as of '
-            reaction += j['forecast']['txt_forecast']['date']
-            reaction += ' - [*'
             reaction += j['forecast']['txt_forecast']['forecastday'][0]['title'] + '*]: ' 
-            reaction += j['forecast']['txt_forecast']['forecastday'][0][fcttext] + '  [*'
+            reaction += j['forecast']['txt_forecast']['forecastday'][0][fcttext] + ' [*'
             reaction += j['forecast']['txt_forecast']['forecastday'][1]['title'] + '*]: '
             reaction += j['forecast']['txt_forecast']['forecastday'][1][fcttext]
         #between 1700 and 2100 show forecast for tonight and tomorrow
         elif 17 <= hour <=21: 
-            reaction = 'Forecast for *' + jname + '* as of '
-            reaction += j['forecast']['txt_forecast']['date']
-            reaction += ' - [*'
             reaction += j['forecast']['txt_forecast']['forecastday'][1]['title'] + '*]: '
-            reaction += j['forecast']['txt_forecast']['forecastday'][1][fcttext] + '  [*'
+            reaction += j['forecast']['txt_forecast']['forecastday'][1][fcttext] + ' [*'
             reaction += j['forecast']['txt_forecast']['forecastday'][2]['title'] + '*]: '
             reaction += j['forecast']['txt_forecast']['forecastday'][2][fcttext]
 
         #after 2100 show forecast for tomorrow and tomorrow night
         elif hour > 21:
-            reaction = 'Forecast for [' + jname + '] as of '
-            reaction += j['forecast']['txt_forecast']['date']
-            reaction += ' - [*'
             reaction += j['forecast']['txt_forecast']['forecastday'][2]['title'] + '*]: '
-            reaction += j['forecast']['txt_forecast']['forecastday'][2][fcttext] + '  [*'
+            reaction += j['forecast']['txt_forecast']['forecastday'][2][fcttext] + ' [*'
             reaction += j['forecast']['txt_forecast']['forecastday'][3]['title'] + '*]: '
             reaction += j['forecast']['txt_forecast']['forecastday'][3][fcttext]
         weebuffer(reaction)
