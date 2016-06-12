@@ -81,7 +81,7 @@ def wu_autoc(data, command, return_code, out, err):
 
 
 def wu_fore(data, command, return_code, out, err):
-    """ wu 5-day forecast """
+    """ wu forecast """
     if return_code == weechat.WEECHAT_HOOK_PROCESS_ERROR:
         weechat.prnt("", "Error with command '%s'" % command)
         return weechat.WEECHAT_RC_OK
@@ -104,7 +104,9 @@ def wu_fore(data, command, return_code, out, err):
 
 	hour_string = j['forecast']['txt_forecast']['date']
 	hour_stripped = hour_string.rpartition(" ")[0]
+        print(hour_stripped)
 	stripped = time.strptime(hour_stripped,"%I:%M %p")
+        print(stripped)
 	hour = stripped.tm_hour
 	if units == "metric":
             fcttext = 'fcttext_metric'
