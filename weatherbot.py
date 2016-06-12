@@ -2,6 +2,8 @@
 # -*- encoding: utf-8 -*-
 #
 # Copyright (c) 2014-2016 by deflax <daniel@deflax.net>
+# Copyright (c) 2015 Christopher Stewart
+# Copyright (c) 2016 by esch
 #
 #       Weechat WeatherBot using WUnderground API
 #
@@ -22,7 +24,7 @@ import weechat
 import ast
 
 SCRIPT_NAME = "weatherbot"
-VERSION = "0.7"
+VERSION = "0.8"
 
 helptext = """
 Get your own API key from http://www.wunderground.com/weather/api/
@@ -53,7 +55,7 @@ def wu_autoc(data, command, return_code, out, err):
     if err != "":
         weechat.prnt("", "stderr: %s" % err)
     if out != "":
-        i = ast.literal_eval(out)
+        i = json.loads(out)
         try:
             loc = next((l for l in i["RESULTS"] if l["type"] == "city"), None)
             if loc is None:
@@ -89,7 +91,7 @@ def wu_fore(data, command, return_code, out, err):
     if err != "":
         weechat.prnt("", "stderr: %s" % err)
     if out != "":
-        j = ast.literal_eval(out)
+        j = json.loads(out)
         try:
             error_type = j["response"]["error"]["type"]
             if error_type == "invalidquery":
@@ -100,20 +102,44 @@ def wu_fore(data, command, return_code, out, err):
                 return weechat.WEECHAT_RC_OK
         except KeyError:
             pass
-    
-        fc = j["forecast"]
-        txt_fc = fc["txt_forecast"]
-        reaction = "[{}] ".format(jname)
-        for day in range(0, 3):
-            fc_today = txt_fc["forecastday"][int(day)]
-            if options["units"] == "metric":
-                fc_cond = fc_today["fcttext_metric"]
-            else:
-                fc_cond = fc_today["fcttext"]
-            fc_name = fc_today["title"]
-            #fc_name = fc_name.lower()
-            #weechat.prnt("", "[weatherbot] req.: {}".format(fc_name))
-            reaction += "<<{}: {} ".format(fc_name, fc_cond)
+
+	hour_string = j['forecast']['txt_forecast']['date']
+	hour_stripped = hour_string.rpartition(" ")[0]
+	stripped = time.strptime(hour_stripped,"%I:%M %p")
+	hour = stripped.tm_hour
+	if units == "metric":
+            fcttext = 'fcttext_metric'
+        else:
+            fcttext = 'fcttext'
+
+        #if earlier than 1600 show forecast for today and tonight
+        if hour < 16: 
+            reaction = 'Forecast for *' + jname + '* as of '
+            reaction += j['forecast']['txt_forecast']['date']
+            reaction += ' - [*'
+            reaction += j['forecast']['txt_forecast']['forecastday'][0]['title'] + '*]: ' 
+            reaction += j['forecast']['txt_forecast']['forecastday'][0][fcttext] + '  [*'
+            reaction += j['forecast']['txt_forecast']['forecastday'][1]['title'] + '*]: '
+            reaction += j['forecast']['txt_forecast']['forecastday'][1][fcttext]
+        #between 1700 and 2100 show forecast for tonight and tomorrow
+        elif 17 <= hour <=21: 
+            reaction = 'Forecast for *' + jname + '* as of '
+            reaction += j['forecast']['txt_forecast']['date']
+            reaction += ' - [*'
+            reaction += j['forecast']['txt_forecast']['forecastday'][1]['title'] + '*]: '
+            reaction += j['forecast']['txt_forecast']['forecastday'][1][fcttext] + '  [*'
+            reaction += j['forecast']['txt_forecast']['forecastday'][2]['title'] + '*]: '
+            reaction += j['forecast']['txt_forecast']['forecastday'][2][fcttext]
+
+        #after 2100 show forecast for tomorrow and tomorrow night
+        elif hour > 21:
+            reaction = 'Forecast for [' + jname + '] as of '
+            reaction += j['forecast']['txt_forecast']['date']
+            reaction += ' - [*'
+            reaction += j['forecast']['txt_forecast']['forecastday'][2]['title'] + '*]: '
+            reaction += j['forecast']['txt_forecast']['forecastday'][2][fcttext] + '  [*'
+            reaction += j['forecast']['txt_forecast']['forecastday'][3]['title'] + '*]: '
+            reaction += j['forecast']['txt_forecast']['forecastday'][3][fcttext]
         weebuffer(reaction)
 
     return weechat.WEECHAT_RC_OK
@@ -128,7 +154,7 @@ def wu_cond(data, command, return_code, out, err):
     if err != "":
         weechat.prnt("", "stderr: %s" % err)
     if out != "":
-        j = ast.literal_eval(out)
+        j = json.loads(out)
         try:
             error_type = j["response"]["error"]["type"]
             if error_type == "invalidquery":
@@ -169,7 +195,7 @@ def wu_cond(data, command, return_code, out, err):
     return weechat.WEECHAT_RC_OK
 
 
-def hacklab(data, command, return_code, out, err):
+def aux1(data, command, return_code, out, err):
     """ sample AUX input """
     if return_code == weechat.WEECHAT_HOOK_PROCESS_ERROR:
         weechat.prnt("", "Error with command '%s'" % command)
@@ -209,8 +235,8 @@ def triggerwatch(data, server, args):
             if mode == "forecast":
                 weebuffer("Crocodile bite!")
             else:
-                hack_url = "url:https://cassie.initlab.org/weather.txt"
-                weechat.hook_process(hack_url, 30 * 1000, "hacklab", "")
+                aux1_url = "url:https://cassie.initlab.org/weather.txt"
+                weechat.hook_process(aux1_url, 30 * 1000, "aux1", "")
         else:
             autoc_url = "url:http://autocomplete.wunderground.com/aq?query={}&format=JSON".format(query)
             weechat.hook_process(autoc_url, 30 * 1000, "wu_autoc", "")
