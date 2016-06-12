@@ -113,7 +113,8 @@ def wu_fore(data, command, return_code, out, err):
 	#hour = stripped.tm_hour
 
         now = datetime.datetime.now()
-        hour = now.strftime('%H')
+        strhour = now.strftime('%H')
+        hour = int(strhour)
 
         reaction = '[' + jname + '] Forecast as of '
         reaction += j['forecast']['txt_forecast']['date']
@@ -126,7 +127,7 @@ def wu_fore(data, command, return_code, out, err):
             reaction += j['forecast']['txt_forecast']['forecastday'][1]['title'] + '*]: '
             reaction += j['forecast']['txt_forecast']['forecastday'][1][fcttext]
         #between 1700 and 2100 show forecast for tonight and tomorrow
-        elif 17 <= hour <=21: 
+        elif 17 <= hour <= 21: 
             reaction += j['forecast']['txt_forecast']['forecastday'][1]['title'] + '*]: '
             reaction += j['forecast']['txt_forecast']['forecastday'][1][fcttext] + ' [*'
             reaction += j['forecast']['txt_forecast']['forecastday'][2]['title'] + '*]: '
