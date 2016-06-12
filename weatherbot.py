@@ -113,7 +113,7 @@ def wu_fore(data, command, return_code, out, err):
         strhour = now.strftime('%H')
         hour = int(strhour)
 
-        reaction = ' [*'
+        reaction = '[{}] [*'.format(jname)
 
         #if earlier than 1600 show forecast for today and tonight
         if hour < 16: 
