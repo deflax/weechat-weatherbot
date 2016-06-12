@@ -102,7 +102,7 @@ def wu_fore(data, command, return_code, out, err):
         except KeyError:
             pass
 
-	if units == "metric":
+	if options["units"] == "metric":
             fcttext = 'fcttext_metric'
         else:
             fcttext = 'fcttext'
