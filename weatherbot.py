@@ -121,8 +121,8 @@ def wu_fore(data, command, return_code, out, err):
             reaction += j['forecast']['txt_forecast']['forecastday'][0][fcttext] + ' [*'
             reaction += j['forecast']['txt_forecast']['forecastday'][1]['title'] + '*]: '
             reaction += j['forecast']['txt_forecast']['forecastday'][1][fcttext]
-        #between 1700 and 2100 show forecast for tonight and tomorrow
-        elif 17 <= hour <= 21: 
+        #between 1600 and 2100 show forecast for tonight and tomorrow
+        elif 16 <= hour <= 21: 
             reaction += j['forecast']['txt_forecast']['forecastday'][1]['title'] + '*]: '
             reaction += j['forecast']['txt_forecast']['forecastday'][1][fcttext] + ' [*'
             reaction += j['forecast']['txt_forecast']['forecastday'][2]['title'] + '*]: '
