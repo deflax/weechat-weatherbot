@@ -210,21 +210,6 @@ def wu_cond(data, command, return_code, out, err):
     return w.WEECHAT_RC_OK
 
 
-def aux1(data, command, return_code, out, err):
-    """ sample AUX input """
-    if return_code == w.WEECHAT_HOOK_PROCESS_ERROR:
-        w.prnt("", "Error with command '%s'" % command)
-        return w.WEECHAT_RC_OK
-    if return_code > 0:
-        w.prnt("", "return_code = %d" % return_code)
-    if err != "":
-        w.prnt("", "stderr: %s" % err)
-    if out != "":
-        reaction = ''.join(out)
-        weebuffer(str(reaction))
-    return w.WEECHAT_RC_OK
-
-
 def triggerwatch(data, buffer, args):
     global kserver, kchannel, knick, mode
     if options["enabled"] == "on":
@@ -247,15 +232,8 @@ def triggerwatch(data, buffer, args):
         knick = w.info_get("irc_nick_from_host", args)
         query = query.replace(" ", "%20")
 
-        if query == "initlab":
-            if mode == "forecast":
-                weebuffer("Crocodile bite!")
-            if mode == "conditions":
-                aux1_url = "url:https://cassie.initlab.org/weather.txt"
-                w.hook_process(aux1_url, 30 * 1000, "aux1", "")
-        else:
-            autoc_url = "url:http://autocomplete.wunderground.com/aq?query={}&format=JSON".format(query)
-            w.hook_process(autoc_url, 30 * 1000, "wu_autoc", "")
+        autoc_url = "url:http://autocomplete.wunderground.com/aq?query={}&format=JSON".format(query)
+        w.hook_process(autoc_url, 30 * 1000, "wu_autoc", "")
 
     return w.WEECHAT_RC_OK
 
