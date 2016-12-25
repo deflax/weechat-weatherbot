@@ -74,7 +74,7 @@ def wu_autoc(data, command, return_code, out, err):
     if err != "":
         w.prnt("", "stderr: %s" % err)
     if out != "":
-        i = json.loads(out)
+        i = json.loads(out, ensure_ascii=False)
         try:
             loc = next((l for l in i["RESULTS"] if l["type"] == "city"), None)
             if loc is None:
