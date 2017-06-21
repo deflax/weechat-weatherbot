@@ -204,7 +204,7 @@ def wu_cond(data, command, return_code, out, err):
             reaction += " {} wind: {} {}.".format(co["wind_dir"], wind_speed, wind_unit)
 
         humid = co["relative_humidity"]
-        if int(humid[:-1]) > 50:
+        if int(humid[:-1]) > 29:
             reaction += " Humidity: {}.".format(co["relative_humidity"])
 
         weebuffer(reaction)
